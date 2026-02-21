@@ -1,0 +1,59 @@
+name: Sync GitHub to AWS SSM
+
+on:
+  workflow_dispatch: # Permite ejecutarlo manualmente desde el botón "Run workflow"
+  schedule:
+    - cron: '/5 * * * *' # Se ejecuta diario a medianoche (opcional)
+
+jobs:
+  sync-secrets:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        environment: [main]
+    
+    # Definimos el entorno de GitHub para leer sus variables específicas
+    environment: ${{ matrix.environment }}
+
+    steps:
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1 # Cambia a tu región
+
+      - name: Sync Variables to SSM
+        shell: bash
+        env:
+          # Pasamos el JSON de variables y secretos del entorno actual
+          VARS_JSON: ${{ toJson(vars) }}
+          SECRETS_JSON: ${{ toJson(secrets) }}
+        run: |
+          PROJECT_NAME="concurrency-test"
+          ENV="${{ matrix.environment }}"
+
+          echo "Sincronizando variables para: $ENV"
+
+          # Función para procesar y subir a AWS
+          sync_to_aws() {
+            local data=$1
+            local type=$2 # String o SecureString
+            
+            echo "$data" | jq -r 'to_entries[] | "\(.key) \(.value)"' | while read -r key value; do
+              # Ignorar variables internas de GitHub o AWS Keys para no entrar en bucle
+              if [[ "$key" != "github"* && "$key" != "AWS_"* ]]; then
+                echo "Subiendo: /$PROJECT_NAME/$ENV/$key"
+                
+                aws ssm put-parameter \
+                  --name "/$PROJECT_NAME/$ENV/$key" \
+                  --value "$value" \
+                  --type "$type" \
+                  --overwrite > /dev/null
+              fi
+            done
+          }
+
+          # Sincronizamos Variables (como String) y Secretos (como SecureString)
+          sync_to_aws "$VARS_JSON" "String"
+          sync_to_aws "$SECRETS_JSON" "SecureString"
