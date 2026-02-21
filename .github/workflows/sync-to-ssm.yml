@@ -1,9 +1,12 @@
 name: Sync GitHub to AWS SSM
 
 on:
-  workflow_dispatch: # Permite ejecutarlo manualmente desde el botón "Run workflow"
-  schedule:
-    - cron: '/5 * * * *' # Se ejecuta diario a medianoche (opcional)
+    push:
+      branches:
+        - main  # Cambia a 'master' si es el nombre de tu rama principal
+    workflow_dispatch: # Permite ejecutarlo manualmente desde el botón "Run workflow"
+    schedule:
+      - cron: '/5 * * * *' # Se ejecuta diario a medianoche (opcional)
 
 jobs:
   sync-secrets:
