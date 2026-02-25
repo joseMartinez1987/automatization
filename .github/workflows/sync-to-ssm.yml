@@ -32,7 +32,7 @@ jobs:
           VARS_JSON: ${{ toJson(vars) }}
           SECRETS_JSON: ${{ toJson(secrets) }}
         run: |
-          PROJECT_NAME="concurrency-test"
+          PROJECT_NAME="easy/concurrency-test"
           ENV="${{ matrix.environment }}"
 
           echo "Sincronizando variables para: $ENV"
