@@ -3,7 +3,9 @@ name: Sync GitHub to AWS SSM
 on:
     push:
       branches:
-        - main  # Cambia a 'master' si es el nombre de tu rama principal
+        - main
+        - staging
+        - uat
     workflow_dispatch: # Permite ejecutarlo manualmente desde el botón "Run workflow"
 
 jobs:
@@ -11,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        environment: [main]
+        environment: [main, uat, staging]
     
     # Definimos el entorno de GitHub para leer sus variables específicas
     environment: ${{ matrix.environment }}

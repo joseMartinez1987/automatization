@@ -10,6 +10,8 @@
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",
     "start:dev": "nest start --watch",
+    "dev": "sh -c 'FILE=${1:-.env}; [ \"$FILE\" = \"main\" ] && FILE=.env.main; [ \"$FILE\" = \"default\" ] && FILE=.env; [ -f \"$FILE\" ] || { echo \"Env file not found: $FILE\"; exit 1; }; set -a; . \"$FILE\"; set +a; nest start --watch' --",
+    "dev:main": "npm run dev -- main",
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
