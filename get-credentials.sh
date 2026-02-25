@@ -1,18 +1,15 @@
 # scripts/fetch-env.sh
 
 ENVIRONMENT=$1
-PROJECT="concurrency-test"
+PROJECT="easy/concurrency-test"
 
 if [ -z "$ENVIRONMENT" ]; then
-    echo "Uso: ./fetch-env.sh main"
+    echo "Uso: ./fetch-env.sh <enviroment name (staging|production|uat)>"
     exit 1
 fi
 
 echo "--- Descargando variables para $ENVIRONMENT ---"
 
-# 1. Obtener parámetros de AWS
-# 2. Limpiar el path (/mi-proyecto/staging/VARIABLE -> VARIABLE)
-# 3. Formatear como KEY=VALUE
 aws ssm get-parameters-by-path \
     --path "/$PROJECT/$ENVIRONMENT/" \
     --recursive \
